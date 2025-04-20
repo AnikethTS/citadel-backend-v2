@@ -1,0 +1,62 @@
+[
+    {
+        "message": "hi",
+        "time": "5:18 PM"
+    },
+    {
+        "message": "hi",
+        "time": "5:20 PM"
+    },
+    {
+        "message": "hi",
+        "time": "5:31 PM"
+    },
+    {
+        "message": "was up",
+        "time": "5:32 PM"
+    },
+    {
+        "sender": "Aniketh",
+        "receiver": "Mahim",
+        "message": "Hi",
+        "time": "5:34 PM"
+    },
+    {
+        "sender": "Aniketh",
+        "receiver": "Xayan",
+        "message": "hi",
+        "time": "5:35 PM"
+    },
+    {
+        "sender": "Aniketh",
+        "receiver": "Neels",
+        "message": "hu",
+        "time": "5:36 PM"
+    },
+    {
+        "sender": "Aniketh",
+        "receiver": "Xayan",
+        "message": "gt",
+        "time": "5:36 PM"
+    },
+    {
+        "sender": "Aniketh",
+        "message": "tu",
+        "time": "7:40 PM"
+    },
+    {
+        "sender": "Admin",
+        "message": "HI",
+        "time": "7:46 PM"
+    },
+    {
+        "sender": "Admin",
+        "message": "h",
+        "time": "7:47 PM"
+    },
+    {
+        "sender": "Admin",
+        "message": "supppp ",
+        "time": "7:48 PM"
+    }
+]
