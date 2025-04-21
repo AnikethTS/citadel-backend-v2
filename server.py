@@ -4,9 +4,17 @@ from flask_socketio import SocketIO, emit
 import json
 import os
 
+# 🔥 Import Firebase Admin SDK
+import firebase_admin
+from firebase_admin import credentials, messaging
+
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+# ✨ Initialize Firebase Admin
+cred = credentials.Certificate('firebase-admin-key.json')  # your service account key
+firebase_admin.initialize_app(cred)
 
 messages_file = 'messages.json'
 
@@ -39,6 +47,20 @@ def handle_send_message(data):
     save_message(data)
     emit('receive_message', data, broadcast=True)
 
+    # 🔔 Send Push Notification
+    try:
+        message = messaging.Message(
+            notification=messaging.Notification(
+                title=f"New message from {data.get('sender')}",
+                body=data.get('message'),
+            ),
+            topic="citadel-chat",  # You will subscribe users to this topic in frontend
+        )
+        response = messaging.send(message)
+        print('✅ Successfully sent push notification:', response)
+    except Exception as e:
+        print('❌ Error sending push notification:', e)
+
 @socketio.on('typing')
 def handle_typing(data):
     emit('typing', data, broadcast=True)
@@ -47,7 +69,7 @@ def handle_typing(data):
 def handle_stop_typing(data):
     emit('stop_typing', data, broadcast=True)
 
-# 💥 Admin Edit Message
+# ✏️ Admin Edit Message
 @socketio.on('edit_message')
 def handle_edit_message(data):
     index = data.get('index')
