@@ -4,7 +4,7 @@ from flask_socketio import SocketIO, emit
 import json
 import os
 
-# 🔥 Import Firebase Admin SDK
+# 🔥 Firebase Admin SDK
 import firebase_admin
 from firebase_admin import credentials, messaging as firebase_messaging
 
@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# ✨ Initialize Firebase Admin
+# ✨ Initialize Firebase
 cred = credentials.Certificate('/etc/secrets/firebase-admin-key.json')
 firebase_admin.initialize_app(cred)
 
@@ -87,31 +87,34 @@ def handle_delete_message(data):
         save_all_messages(messages)
         emit('update_messages', messages, broadcast=True)
 
-# ✅ New Call Handlers Below
-
+# ✅ Call Related Handlers
 @socketio.on('call_user')
 def handle_call_user(data):
-    from_user = data.get('from')
-    to_user = data.get('to')
-    print(f"📞 {from_user} is calling {to_user}")
-
-    emit('incoming_call', {'from': from_user, 'to': to_user}, broadcast=True)
+    print(f"📞 {data.get('from')} is calling {data.get('to')}")
+    emit('incoming_call', data, broadcast=True)
 
 @socketio.on('accept_call')
 def handle_accept_call(data):
-    from_user = data.get('from')
-    to_user = data.get('to')
-    print(f"✅ {from_user} accepted call from {to_user}")
-
-    emit('call_accepted', {'from': from_user, 'to': to_user}, broadcast=True)
+    print(f"✅ {data.get('from')} accepted call from {data.get('to')}")
+    emit('call_accepted', data, broadcast=True)
 
 @socketio.on('reject_call')
 def handle_reject_call(data):
-    from_user = data.get('from')
-    to_user = data.get('to')
-    print(f"❌ {from_user} rejected call from {to_user}")
+    print(f"❌ {data.get('from')} rejected call from {data.get('to')}")
+    emit('call_rejected', data, broadcast=True)
 
-    emit('call_rejected', {'from': from_user, 'to': to_user}, broadcast=True)
+# ✅ Future (WebRTC)
+@socketio.on('webrtc_offer')
+def handle_webrtc_offer(data):
+    emit('webrtc_offer', data, broadcast=True)
+
+@socketio.on('webrtc_answer')
+def handle_webrtc_answer(data):
+    emit('webrtc_answer', data, broadcast=True)
+
+@socketio.on('webrtc_ice_candidate')
+def handle_webrtc_ice_candidate(data):
+    emit('webrtc_ice_candidate', data, broadcast=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
