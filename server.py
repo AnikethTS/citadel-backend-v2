@@ -43,7 +43,7 @@ def get_messages():
     return jsonify(load_messages())
 
 @socketio.on('send_message')
-def on_send_message(data):   # ✅ Changed here
+def on_send_message(data):
     save_message(data)
     emit('receive_message', data, broadcast=True)
 
@@ -86,6 +86,32 @@ def handle_delete_message(data):
         del messages[index]
         save_all_messages(messages)
         emit('update_messages', messages, broadcast=True)
+
+# ✅ New Call Handlers Below
+
+@socketio.on('call_user')
+def handle_call_user(data):
+    from_user = data.get('from')
+    to_user = data.get('to')
+    print(f"📞 {from_user} is calling {to_user}")
+
+    emit('incoming_call', {'from': from_user, 'to': to_user}, broadcast=True)
+
+@socketio.on('accept_call')
+def handle_accept_call(data):
+    from_user = data.get('from')
+    to_user = data.get('to')
+    print(f"✅ {from_user} accepted call from {to_user}")
+
+    emit('call_accepted', {'from': from_user, 'to': to_user}, broadcast=True)
+
+@socketio.on('reject_call')
+def handle_reject_call(data):
+    from_user = data.get('from')
+    to_user = data.get('to')
+    print(f"❌ {from_user} rejected call from {to_user}")
+
+    emit('call_rejected', {'from': from_user, 'to': to_user}, broadcast=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
