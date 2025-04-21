@@ -47,19 +47,19 @@ def handle_send_message(data):
     save_message(data)
     emit('receive_message', data, broadcast=True)
 
-    # 🔔 Send Push Notification
     try:
-        message = messaging.Message(
+        push_message = messaging.Message(    # 👈 change variable name
             notification=messaging.Notification(
                 title=f"New message from {data.get('sender')}",
                 body=data.get('message'),
             ),
-            topic="citadel-chat",  # You will subscribe users to this topic in frontend
+            topic="citadel-chat",
         )
-        response = messaging.send(message)
+        response = messaging.send(push_message)  # 👈 use push_message here
         print('✅ Successfully sent push notification:', response)
     except Exception as e:
         print('❌ Error sending push notification:', e)
+
 
 @socketio.on('typing')
 def handle_typing(data):
