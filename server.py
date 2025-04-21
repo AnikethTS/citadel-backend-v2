@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 import json
@@ -17,6 +17,11 @@ cred = credentials.Certificate('/etc/secrets/firebase-admin-key.json')
 firebase_admin.initialize_app(cred)
 
 messages_file = 'messages.json'
+media_folder = 'media'
+
+# 🔥 Create media folder if doesn't exist
+if not os.path.exists(media_folder):
+    os.makedirs(media_folder)
 
 def load_messages():
     if os.path.exists(messages_file):
@@ -41,6 +46,37 @@ def index():
 @app.route('/get_messages', methods=['GET'])
 def get_messages():
     return jsonify(load_messages())
+
+@app.route('/upload_media', methods=['POST'])
+def upload_media():
+    file = request.files.get('file')
+    sender = request.form.get('sender')
+
+    if file:
+        filepath = os.path.join(media_folder, file.filename)
+        file.save(filepath)
+
+        message_entry = {
+            "sender": sender,
+            "message": "",
+            "media": {
+                "type": "image" if file.mimetype.startswith('image') else "video",
+                "url": f"/media/{file.filename}"
+            },
+            "time": request.form.get('time')
+        }
+        save_message(message_entry)
+
+        # Emit new media message to everyone
+        socketio.emit('receive_message', message_entry)
+        return jsonify({"status": "success", "url": f"/media/{file.filename}"})
+
+    return jsonify({"status": "error", "message": "No file provided"}), 400
+
+# 🔥 Serve uploaded media files
+@app.route('/media/<path:filename>')
+def serve_media(filename):
+    return send_from_directory(media_folder, filename)
 
 @socketio.on('send_message')
 def on_send_message(data):
