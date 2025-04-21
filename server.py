@@ -6,7 +6,7 @@ import os
 
 # 🔥 Import Firebase Admin SDK
 import firebase_admin
-from firebase_admin import credentials, messaging as firebase_messaging  # ✅ NOTICE
+from firebase_admin import credentials, messaging as firebase_messaging
 
 app = Flask(__name__)
 CORS(app)
@@ -43,19 +43,19 @@ def get_messages():
     return jsonify(load_messages())
 
 @socketio.on('send_message')
-def handle_send_message(data):
+def on_send_message(data):   # ✅ Changed here
     save_message(data)
     emit('receive_message', data, broadcast=True)
 
     try:
-        push_message = firebase_messaging.Message(   # ✅ correct usage
+        push_message = firebase_messaging.Message(
             notification=firebase_messaging.Notification(
                 title=f"New message from {data.get('sender')}",
                 body=data.get('message'),
             ),
             topic="citadel-chat",
         )
-        response = firebase_messaging.send(push_message)  # ✅ correct usage
+        response = firebase_messaging.send(push_message)
         print('✅ Successfully sent push notification:', response)
     except Exception as e:
         print('❌ Error sending push notification:', e)
