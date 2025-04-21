@@ -13,7 +13,7 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # ✨ Initialize Firebase Admin
-cred = credentials.Certificate('firebase-admin-key.json')  # your service account key
+cred = credentials.Certificate('/etc/secrets/firebase-admin-key.json')
 firebase_admin.initialize_app(cred)
 
 messages_file = 'messages.json'
