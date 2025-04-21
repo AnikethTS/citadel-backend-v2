@@ -6,7 +6,7 @@ import os
 
 # 🔥 Import Firebase Admin SDK
 import firebase_admin
-from firebase_admin import credentials, messaging
+from firebase_admin import credentials, messaging as firebase_messaging  # ✅ NOTICE
 
 app = Flask(__name__)
 CORS(app)
@@ -48,18 +48,17 @@ def handle_send_message(data):
     emit('receive_message', data, broadcast=True)
 
     try:
-        push_message = messaging.Message(    # 👈 change variable name
-            notification=messaging.Notification(
+        push_message = firebase_messaging.Message(   # ✅ correct usage
+            notification=firebase_messaging.Notification(
                 title=f"New message from {data.get('sender')}",
                 body=data.get('message'),
             ),
             topic="citadel-chat",
         )
-        response = messaging.send(push_message)  # 👈 use push_message here
+        response = firebase_messaging.send(push_message)  # ✅ correct usage
         print('✅ Successfully sent push notification:', response)
     except Exception as e:
         print('❌ Error sending push notification:', e)
-
 
 @socketio.on('typing')
 def handle_typing(data):
@@ -69,7 +68,6 @@ def handle_typing(data):
 def handle_stop_typing(data):
     emit('stop_typing', data, broadcast=True)
 
-# ✏️ Admin Edit Message
 @socketio.on('edit_message')
 def handle_edit_message(data):
     index = data.get('index')
@@ -80,7 +78,6 @@ def handle_edit_message(data):
         save_all_messages(messages)
         emit('update_messages', messages, broadcast=True)
 
-# 🗑️ Admin Delete Message
 @socketio.on('delete_message')
 def handle_delete_message(data):
     index = data.get('index')
