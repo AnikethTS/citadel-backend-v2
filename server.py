@@ -151,6 +151,39 @@ def handle_webrtc_answer(data):
 @socketio.on('webrtc_ice_candidate')
 def handle_webrtc_ice_candidate(data):
     emit('webrtc_ice_candidate', data, broadcast=True)
+# 🔥 Admin User Control Section
+
+user_status_file = 'user_status.json'
+
+def load_user_status():
+    if os.path.exists(user_status_file):
+        with open(user_status_file, 'r') as f:
+            return json.load(f)
+    else:
+        return {}
+
+def save_user_status(status_data):
+    with open(user_status_file, 'w') as f:
+        json.dump(status_data, f, indent=4)
+
+@app.route('/get_user_status', methods=['GET'])
+def get_user_status():
+    return jsonify(load_user_status())
+
+@app.route('/set_user_status', methods=['POST'])
+def set_user_status():
+    data = request.json
+    username = data.get('username')
+    status = data.get('status')  # should be 'active' or 'inactive'
+
+    if not username or status not in ['active', 'inactive']:
+        return jsonify({"error": "Invalid request"}), 400
+
+    status_data = load_user_status()
+    status_data[username] = status
+    save_user_status(status_data)
+
+    return jsonify({"message": f"Status of {username} set to {status}"}), 200
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
