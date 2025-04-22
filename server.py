@@ -182,6 +182,9 @@ def set_user_status():
     status_data = load_user_status()
     status_data[username] = status
     save_user_status(status_data)
+    # 🔥 Force logout if inactive
+    if status == 'inactive':
+        socketio.emit('force_logout', {'username': username})
 
     return jsonify({"message": f"Status of {username} set to {status}"}), 200
 
